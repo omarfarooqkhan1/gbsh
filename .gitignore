@@ -1,0 +1,6 @@
+.vscode/**
+bin/**
+bin-init/**
+build/**
+Makefile
+premake5.lua
