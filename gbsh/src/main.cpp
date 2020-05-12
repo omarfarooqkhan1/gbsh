@@ -1,6 +1,9 @@
 #include<iostream>
 #include<string>
-#include"util.h"
+#include "util.h"
+#include"commands.h"
+#include<filesystem>
+#include<unistd.h>
 using namespace std;
 
 template<typename T>
@@ -10,32 +13,44 @@ void consolePrint(const T& data){
 
 
 int main(int argc, char const *argv[]){
-
+    
+    const bool flag = true;
     string input;
-    while(true){
+    while(true && flag){
+        cout<<"in llooop"<<endl;
         print_prompt();
         getline(cin,input);
+        if(input.empty()) continue;
         trim(input);
         const vector<string> tokens = tokenizer(input,' ');
-        if(tokens.size() == 1){
-            if(input == "exit"){
-                break;
-            }
-            else if (input == "pwd"){
-                consolePrint(get_pwd());
-            }
-            else if (input == "clear"){
-                clear();
-            }
-            else if (input == "ls"){
-                // list pwd stuff
-            }
+        const string& first = tokens[0];
+
+        if(first == "exit"){
+            break;
         }
-        else{
-            const string& first = tokens[0];
-            if (first == "ls"){
-                //cd into the directory and then ls
-            }
+        else if (first == "pwd"){
+            consolePrint(get_pwd());
+        }
+        else if (first == "clear"){
+            clear();
+        }
+        // else if (first == "ls"){
+        //     ls(tokens);
+        // }
+        else if (first == "cd"){
+            cd(tokens);
+        }
+        else if (first == "environ"){
+            list_envs();
+        }
+        else if (first == "setenv"){
+            set_env(tokens);
+        }
+        else if (first == "unsetenv"){
+            unset_env(tokens);
+        }
+        else {
+            transer_to_bash(tokens);
         }
     }    
     return 0;

@@ -35,7 +35,8 @@ string get_hostname(){
 void print_prompt(){
     string path = get_pwd();
     const size_t loc = path.find(USERNAME);
-    path = string("~") + path.substr(loc + USERNAME.length());
+    if (path.find("/home/"+USERNAME)!=string::npos)
+        path = string("~") + path.substr(loc + USERNAME.length());
     cout<<USERNAME<<'@'<<HOSTNAME<<' '<<path<<" > ";
 }
 
@@ -48,15 +49,14 @@ vector<string> tokenizer(const string& str, const char delimeter){
     vector<string> tokens;
         string temp;
         temp.reserve(50);
-        const auto  len = str.length();
-        for (std::size_t i = 0, size = len; i < size; i++){
+        for (std::size_t i = 0, size = str.length(); i < size; i++){
             if (str[i] != delimeter)
             {
                 temp += str[i];
             }
             else
             {
-                if (len)
+                if (!temp.empty())
                 {
                     tokens.push_back(temp);
                     temp.clear();
@@ -64,7 +64,7 @@ vector<string> tokenizer(const string& str, const char delimeter){
                 }
             }
         }
-        if (len)
+        if (!temp.empty())
             tokens.push_back(temp);
         return tokens;
 }
@@ -92,4 +92,37 @@ void trim_trailing_whitespace(string& str){
 void trim(string& str){
     trim_leading_whitespace(str);
     trim_trailing_whitespace(str);
+}
+
+
+string resolve_path(string pwd, const string& args){
+    if (args =="/")
+        return args;
+    vector<string> tokens = tokenizer(args,'/');
+    for(const auto& tok : tokens){
+        if(tok == ".."){
+            if(!pwd.empty())
+                pwd = pwd.substr(0,pwd.find_last_of('/'));
+        }
+        else{
+            pwd+='/';
+            pwd+=tok;
+        }
+    }
+    if(pwd.empty())
+        pwd = "/";
+    return pwd;
+}  
+
+std::string get_homedir(){
+   return string("/home/")+USERNAME;
+}
+
+vector<string> get_envs(){
+    vector<string> vars;
+    char** var = environ;
+    for(size_t i = 0; var[i]!=NULL; i++){
+        vars.push_back(var[i]);
+    }
+    return vars;
 }
